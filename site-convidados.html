@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Casamento</title>
+<style>
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* fundo com blur */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: url('https://autoglass365-my.sharepoint.com/:i:/g/personal/yago_mendonca_autoglass_com_br/IQDuxJaA0tUuR6fj6hFT6dJXASiv4kHDmnkyPcGjdS5ogxI?e=5Nnw3P');
+    background-size: cover;
+    background-position: center;
+    filter: blur(4px);
+    transform: scale(1.05);
+    z-index: -1;
+  }
+
+  .card {
+    background: rgba(255, 255, 255, 0.93);
+    max-width: 420px;
+    width: 100%;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  }
+
+  h2 {
+    text-align: center;
+    margin-top: 0;
+  }
+
+  label {
+    display: block;
+    margin-top: 15px;
+  }
+
+  input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+
+  button {
+    background: #222;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+
+  button:hover {
+    opacity: 0.9;
+  }
+
+  #msg {
+    margin-top: 15px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <h2>Confirmação de Presença 💍</h2>
+
+  <form id="form">
+    <label>Nome
+      <input type="text" id="nome" required>
+    </label>
+
+    <label>Você irá ao casamento?
+      <select id="presenca" required>
+        <option value="">Selecione</option>
+        <option value="Sim">Sim</option>
+        <option value="Não">Não</option>
+      </select>
+    </label>
+
+    <label>Presente
+      <select id="presente" required>
+        <option>Carregando...</option>
+      </select>
+    </label>
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <p id="msg"></p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,282 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Checklist do Apartamento — Yago & Jéssica</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header>
+  <h1>Checklist da Casa</h1>
+  <p>Yago & Jéssica</p>
+  <nav>
+    <a href="dashboard.html">Dashboard</a>
+  </nav>
+</header>
+
+<div class="main">
+  <div class="section-title"><span class="dot"></span><h2 style="margin:0">Paletas</h2></div>
+  <section class="section">
+    <div class="paletas">
+      <div class="paleta-card" id="cardPaletaNossa">
+        <header><h3>Nosso modelo / paleta</h3></header>
+          <div class="img" id="imgPaletaNossa">
+            <!-- Use o nome exato do arquivo que está na pasta -->
+            <img src="paleta-nossa.jpg">
+        </div>
+      </div>
+      <div class="paleta-card" id="cardPaletaInspiracao">
+        <header><h3>Paleta inspiração</h3></header>
+          <div class="img" id="imgPaletaInspiracao">
+            <img src="paleta-inspiracao.png">
+        </div>
+  </section>
+  <div class="section-title"><span class="dot"></span><h2 style="margin:0">Checklist</h2></div>
+  <section class="section">
+    <div class="filtros">
+      <input id="busca" type="text" placeholder="Buscar item..." />
+      <select id="filtroCategoria"><option value="">Todas as categorias</option></select>
+      <select id="filtroStatus">
+        <option value="">Todos os status</option>
+        <option value="comprado">Comprado</option>
+        <option value="pendente">Pendente</option>
+        <option value="presente">Presente</option>
+      </select>
+      <button id="btnExportJson">Exportar JSON</button>
+      <button id="btnExportCsv">Exportar CSV</button>
+      <label class="badge" for="importJson" style="border:1px solid var(--cinza-claro); padding:8px 10px; border-radius:8px; cursor:pointer">Importar JSON
+        <input id="importJson" type="file" accept="application/json" style="display:none" />
+      </label>
+      <button id="btnReset">Reiniciar</button>
+    </div>
+
+    <div class="resumo" id="resumo"></div>
+    <div class="lista" id="lista"></div>
+    <small style="color:#6b7280">Marque o círculo para concluir o item. Preço vazio indica que ainda não foi comprado; ao marcar "Compramos", o preço vira linha verde.</small>
+  </section>
+</div>
+<footer class="footer">Feito com carinho para o enxoval do apê 💛</footer>
+<script>
+const PADRAO = {moeda:'BRL'};
+const defaultItems = [{"categoria": "Cozinha/Área de serviço", "nome": "Talheres", "comprado": true}, {"categoria": "Cozinha/Área de serviço", "nome": "Lixeira de cozinha", "comprado": false}, {"categoria": "Cozinha/Área de serviço", "nome": "Jarra para suco", "comprado": true}, {"categoria": "Cozinha/Área de serviço", "nome": "Porta detergente", "comprado": false}, {"categoria": "Cozinha/Área de serviço", "nome": "Saleiro", "comprado": false}, {"categoria": "Cozinha/Área de serviço", "nome": "Rodinho de pia", "comprado": false}, {"categoria": "Cozinha/Área de serviço", "nome": "Açucareiro", "comprado": false}, {"categoria": "Cozinha/Área de serviço", "nome": "Pratos – 4 rasos", "comprado": false}, {"categoria": "Cozinha/Área de serviço", "nome": "Pratos – 4 fundos", "comprado": false}, {"categoria": "Cozinha/Área de serviço", "nome": "Copos de vidro", "comprado": false}, {"categoria": "Cozinha/Área de serviço", "nome": "Jarra de água", "comprado": false}, {"categoria": "Cozinha/Área de serviço", "nome": "Taças", "comprado": true}, {"categoria": "Cozinha/Área de serviço", "nome": "Tábua de corte", "comprado": true}, {"categoria": "Cozinha/Área de serviço", "nome": "Facas", "comprado": false}, {"categoria": "Cozinha/Área de serviço", "nome": "Panos de prato", "comprado": true}, {"categoria": "Cozinha/Área de serviço", "nome": "Jogo de panelas", "comprado": false}, {"categoria": "Cozinha/Área de serviço", "nome": "Porta condimentos", "comprado": false}, {"categoria": "Cozinha/Área de serviço", "nome": "Porta mantimentos (açúcar/arroz/café)", "comprado": true}, {"categoria": "Cozinha/Área de serviço", "nome": "Toalha de mesa", "comprado": false}, {"categoria": "Cozinha/Área de serviço", "nome": "Jogo americano", "comprado": false}, {"categoria": "Cozinha/Área de serviço", "nome": "Ralador", "comprado": false}, {"categoria": "Casa/Limpeza", "nome": "Vassoura", "comprado": false}, {"categoria": "Casa/Limpeza", "nome": "Pá de lixo", "comprado": false}, {"categoria": "Casa/Limpeza", "nome": "Rodo", "comprado": false}, {"categoria": "Casa/Limpeza", "nome": "Caneca para café ou chaleira", "comprado": false}, {"categoria": "Casa/Limpeza", "nome": "Garrafa térmica (café)", "comprado": false}, {"categoria": "Casa/Limpeza", "nome": "Kit 2 xícaras", "comprado": true}, {"categoria": "Casa/Limpeza", "nome": "Frigideira", "comprado": true}, {"categoria": "Casa/Limpeza", "nome": "Potes herméticos", "comprado": false}, {"categoria": "Casa/Limpeza", "nome": "Fruteira", "comprado": false}, {"categoria": "Casa/Limpeza", "nome": "Panela de pressão", "comprado": false}, {"categoria": "Casa/Limpeza", "nome": "Peneiras", "comprado": false}, {"categoria": "Casa/Limpeza", "nome": "Kit de potes", "comprado": true}, {"categoria": "Casa/Limpeza", "nome": "Mini processador", "comprado": false}, {"categoria": "Casa/Limpeza", "nome": "Escorredor de macarrão", "comprado": false}, {"categoria": "Casa/Limpeza", "nome": "Escorredor de arroz", "comprado": false}, {"categoria": "Casa/Limpeza", "nome": "Baldes", "comprado": false}, {"categoria": "Casa/Limpeza", "nome": "Mop balde giratório", "comprado": false}, {"categoria": "Casa/Limpeza", "nome": "Lixeira de pia", "comprado": false}, {"categoria": "Casa/Limpeza", "nome": "Pano de chão", "comprado": false}, {"categoria": "Quarto/Cama", "nome": "Colchão casal", "comprado": false}, {"categoria": "Quarto/Cama", "nome": "Porta travesseiro", "comprado": true}, {"categoria": "Quarto/Cama", "nome": "Travesseiros (mín. 2 / ideal 4)", "comprado": false}, {"categoria": "Quarto/Cama", "nome": "Protetor de colchão", "comprado": false}, {"categoria": "Quarto/Cama", "nome": "Jogo de lençol (mín. 2 jogos)", "comprado": false}, {"categoria": "Quarto/Cama", "nome": "Fronha extra", "comprado": false}, {"categoria": "Quarto/Cama", "nome": "Cobertor ou edredom", "comprado": false}, {"categoria": "Quarto/Cama", "nome": "Edredom extra", "comprado": false}, {"categoria": "Quarto/Cama", "nome": "Jogo de cama reserva", "comprado": false}, {"categoria": "Quarto/Cama", "nome": "Almofadas decorativas", "comprado": false}, {"categoria": "Quarto/Cama", "nome": "Cabeceira", "comprado": false}, {"categoria": "Banheiro", "nome": "Toalhas de banho (mín. 2 por pessoa)", "comprado": true}, {"categoria": "Banheiro", "nome": "Toalhas de rosto", "comprado": true}, {"categoria": "Banheiro", "nome": "Tapete de banheiro", "comprado": false}, {"categoria": "Banheiro", "nome": "Lixeira de banheiro", "comprado": false}, {"categoria": "Banheiro", "nome": "Saboneteira", "comprado": false}, {"categoria": "Banheiro", "nome": "Porta-escova de dentes", "comprado": false}, {"categoria": "Banheiro", "nome": "Porta-sabonete líquido", "comprado": false}, {"categoria": "Banheiro", "nome": "Suporte para papel higiênico", "comprado": false}, {"categoria": "Banheiro", "nome": "Escova sanitária", "comprado": false}, {"categoria": "Banheiro", "nome": "Cesto para roupas sujas", "comprado": false}, {"categoria": "Eletrodomésticos", "nome": "Geladeira (tamanho compacto)", "comprado": false}, {"categoria": "Eletrodomésticos", "nome": "Fogão (4 ou 5 bocas)", "comprado": false}, {"categoria": "Eletrodomésticos", "nome": "Micro-ondas", "comprado": false}, {"categoria": "Eletrodomésticos", "nome": "Liquidificador", "comprado": false}, {"categoria": "Eletrodomésticos", "nome": "Sanduicheira / Misteira", "comprado": false}, {"categoria": "Eletrodomésticos", "nome": "Ventilador de teto", "comprado": false}, {"categoria": "Eletrodomésticos", "nome": "Airfryer", "comprado": false}, {"categoria": "Eletrodomésticos", "nome": "Aspirador de pó", "comprado": false}, {"categoria": "Eletrodomésticos", "nome": "Ferro de passar roupa", "comprado": false}, {"categoria": "Eletrodomésticos", "nome": "Panela elétrica de arroz", "comprado": false}, {"categoria": "Eletrodomésticos", "nome": "Lava e seca", "comprado": false}, {"categoria": "Eletrodomésticos", "nome": "Depurador de ar", "comprado": false}, {"categoria": "Eletrodomésticos", "nome": "Purificador de água", "comprado": false}, {"categoria": "Eletrodomésticos", "nome": "Mixer", "comprado": false}, {"categoria": "Eletrodomésticos", "nome": "Chaleira elétrica", "comprado": false}, {"categoria": "Sala", "nome": "Cortina até o chão", "comprado": false}, {"categoria": "Sala", "nome": "Varão ou trilho de cortina", "comprado": false}, {"categoria": "Sala", "nome": "Tapete (tamanho proporcional ao sofá)", "comprado": false}, {"categoria": "Sala", "nome": "Luminária de chão ou abajur", "comprado": false}, {"categoria": "Sala", "nome": "Almofadas (2 ou 3 no máx.)", "comprado": false}, {"categoria": "Sala", "nome": "Manta para sofá", "comprado": false}, {"categoria": "Sala", "nome": "Mesa lateral ou mesa de canto", "comprado": false}, {"categoria": "Sala", "nome": "Extensão", "comprado": false}, {"categoria": "Sala", "nome": "Suporte para controle remoto", "comprado": false}, {"categoria": "Sala", "nome": "Organizadores (caixas ou cestos)", "comprado": false}, {"categoria": "Móveis", "nome": "Sofá 2 lugares", "comprado": false}, {"categoria": "Móveis", "nome": "Cama de casal (tamanho normal)", "comprado": false}, {"categoria": "Móveis", "nome": "Colchão (tamanho normal)", "comprado": false}, {"categoria": "Móveis", "nome": "Guarda-roupa", "comprado": false}, {"categoria": "Móveis", "nome": "Mesa de jantar compacta", "comprado": false}, {"categoria": "Móveis", "nome": "Rack ou painel para TV", "comprado": false}, {"categoria": "Móveis", "nome": "Mesa de canto", "comprado": false}];
+
+/* =====================
+   1. LOAD / STATE
+===================== */
+
+function load(){
+  const salvo = localStorage.getItem('enxovalDados');
+  if (salvo) {
+    try { return JSON.parse(salvo); } catch {}
+  }
+
+  const itens = defaultItems.map((it, idx) => ({
+    id: idx + 1,
+    categoria: it.categoria,
+    nome: it.nome,
+    comprado: !!it.comprado,
+    origem: it.comprado ? 'compramos' : '',
+    preco: 0
+  }));
+
+  const dados = {
+    config: PADRAO,
+    itens,
+    paletas: { nossa: null, inspiracao: null }
+  };
+
+  localStorage.setItem('enxovalDados', JSON.stringify(dados));
+  return dados;
+}
+
+let dados = load();
+
+/* =====================
+   2. HELPERS
+===================== */
+
+function salvar(){
+  localStorage.setItem('enxovalDados', JSON.stringify(dados));
+  renderResumo();
+}
+
+function fmt(v){
+  return (v || 0).toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: dados.config.moeda || 'BRL'
+  });
+}
+
+function categorias(){
+  return [...new Set(dados.itens.map(i => i.categoria))].sort();
+}
+
+/* =====================
+   3. UI
+===================== */
+
+function renderFiltros(){
+  const sel = document.querySelector('#filtroCategoria');
+  sel.innerHTML = '<option value="">Todas as categorias</option>';
+  categorias().forEach(c => {
+    const o = document.createElement('option');
+    o.value = c;
+    o.textContent = c;
+    sel.appendChild(o);
+  });
+}
+
+function renderResumo(){
+  const total = dados.itens.length;
+  const comprados = dados.itens.filter(i => i.comprado).length;
+  const presentes = dados.itens.filter(i => i.origem === 'presente').length;
+  const gasto = dados.itens
+    .filter(i => i.origem === 'compramos')
+    .reduce((s, i) => s + (Number(i.preco) || 0), 0);
+
+  const pct = Math.round((comprados / Math.max(total, 1)) * 100);
+
+  document.querySelector('#resumo').innerHTML = `
+    <div class="metric">
+      <div><strong>Itens</strong></div>
+      <div>${comprados}/${total} concluídos</div>
+      <div class="progress"><div style="width:${pct}%"></div></div>
+    </div>
+    <div class="metric">
+      <div><strong>Total gasto</strong></div>
+      <div>${fmt(gasto)}</div>
+    </div>
+    <div class="metric">
+      <div><strong>Presentes</strong></div>
+      <div>${presentes} itens</div>
+    </div>
+  `;
+}
+
+function linha(i){
+  return `
+  <div class="item ${i.comprado ? 'comprado' : ''}">
+    <div class="check">${i.comprado ? '✓' : ''}</div>
+
+    <div>
+      <div class="nome">${i.nome}</div>
+      <div class="categoria">${i.categoria}</div>
+    </div>
+
+    <div class="origem">
+      <select class="origemSel" data-id="${i.id}">
+        <option value="">Origem</option>
+        <option value="compramos" ${i.origem === 'compramos' ? 'selected' : ''}>Compramos</option>
+        <option value="presente" ${i.origem === 'presente' ? 'selected' : ''}>Presente</option>
+      </select>
+    </div>
+
+    <div class="preco">
+      <input type="number" min="0" step="0.01"
+        class="precoInp" data-id="${i.id}" value="${i.preco || ''}">
+    </div>
+
+    <div class="acoes">
+      <button onclick="limpar(${i.id})">Limpar</button>
+    </div>
+  </div>`;
+}
+
+function renderLista(){
+  const q = document.querySelector('#busca').value.toLowerCase();
+  const cat = document.querySelector('#filtroCategoria').value;
+  const status = document.querySelector('#filtroStatus').value;
+
+  const lista = dados.itens.filter(i => {
+    if (q && !i.nome.toLowerCase().includes(q)) return false;
+    if (cat && i.categoria !== cat) return false;
+    if (status === 'comprado' && !i.comprado) return false;
+    if (status === 'pendente' && i.comprado) return false;
+    if (status === 'presente' && i.origem !== 'presente') return false;
+    return true;
+  });
+
+  document.querySelector('#lista').innerHTML = lista.map(linha).join('');
+}
+
+function limpar(id){
+  const i = dados.itens.find(x => x.id === id);
+  if (!i) return;
+  i.comprado = false;
+  i.origem = '';
+  i.preco = 0;
+  salvar();
+  renderLista();
+}
+
+/* =====================
+   4. PALETAS
+===================== */
+
+function fToBase64(file){
+  return new Promise(res => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.readAsDataURL(file);
+  });
+}
+
+function carregarImg(idInput, destino){
+  const input = document.getElementById(idInput);
+  if (!input) return;
+
+  input.addEventListener('change', async () => {
+    const f = input.files?.[0];
+    if (!f) return;
+    dados.paletas[destino] = await fToBase64(f);
+    salvar();
+    renderPaletas();
+  });
+}
+/* =====================
+   5. EVENTOS
+===================== */
+
+document.addEventListener('input', ev => {
+  const t = ev.target;
+
+  if (t.classList.contains('precoInp')) {
+    const it = dados.itens.find(x => x.id == t.dataset.id);
+    if (it) it.preco = Number(t.value || 0);
+    salvar();
+  }
+
+  if (t.classList.contains('origemSel')) {
+    const it = dados.itens.find(x => x.id == t.dataset.id);
+    if (it) {
+      it.origem = t.value;
+      it.comprado = !!t.value;
+      salvar();
+      renderLista();
+    }
+  }
+
+  if (['busca','filtroCategoria','filtroStatus'].includes(t.id)) {
+    renderLista();
+  }
+});
+
+document.getElementById('btnReset').addEventListener('click', () => {
+  localStorage.removeItem('enxovalDados');
+  location.reload();
+});
+
+/* =====================
+   6. INIT
+===================== */
+
+renderFiltros();
+renderResumo();
+renderLista();
+renderPaletas();
+
+carregarImg('filePaletaNossa', 'nossa');
+carregarImg('filePaletaInspiracao', 'inspiracao');
+</script>

@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dashboard — Enxoval</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header>
+  <h1>Dashboard</h1>
+  <p>Resumo de gastos e origens</p>
+  <nav>
+    <a href="index.html">Checklist</a>
+  </nav>
+</header>
+<div class="main">
+  <section class="section">
+    <div class="resumo" id="resumo"></div>
+  </section>
+  <div class="section-title"><span class="dot"></span><h2 style="margin:0">Gasto por categoria</h2></div>
+  <section class="section">
+    <div id="gastosCategorias" style="display:grid; gap:8px"></div>
+    <small style="color:#6b7280">Considera apenas itens com origem = Compramos.</small>
+  </section>
+  <div class="section-title"><span class="dot"></span><h2 style="margin:0">Origem dos itens</h2></div>
+  <section class="section">
+    <div id="origemTabela"></div>
+  </section>
+  <div class="section-title"><span class="dot"></span><h2 style="margin:0">Comprados</h2></div>
+  <section class="section">
+    <table class="table" id="tabelaComprados"><thead>
+      <tr><th>Categoria</th><th>Item</th><th>Origem</th><th>Preço (R$)</th></tr>
+    </thead><tbody></tbody></table>
+  </section>
+</div>
+<footer class="footer">Atualize os preços no Checklist para ver os gráficos aqui 😉</footer>
+<script>
+function load(){ const salvo = localStorage.getItem('enxovalDados'); return salvo? JSON.parse(salvo): {config:{moeda:'BRL'}, itens:[]}; }
+const dados = load(); const moeda = dados.config.moeda||'BRL';
+const fmt = (v)=> (v||0).toLocaleString('pt-BR', {style:'currency', currency: moeda});
+
+function resumo(){
+  const total = dados.itens.length;
+  const comprados = dados.itens.filter(i=>i.comprado).length;
+  const presentes = dados.itens.filter(i=>i.origem==='presente').length;
+  const gasto = dados.itens.filter(i=>i.origem==='compramos').reduce((s,i)=>s+(Number(i.preco)||0),0);
+  const pct = Math.round((comprados/Math.max(total,1))*100);
+  document.querySelector('#resumo').innerHTML = `
+    <div class='metric'><div><strong>Itens</strong></div><div>${comprados}/${total} concluídos</div><div class='progress'><div style='width:${pct}%'></div></div></div>
+    <div class='metric'><div><strong>Total gasto</strong></div><div>${fmt(gasto)}</div></div>
+    <div class='metric'><div><strong>Presentes</strong></div><div>${presentes} itens</div></div>`;
+}
+
+function gastosPorCategoria(){
+  const ac = {}; dados.itens.forEach(i=>{ if(i.origem==='compramos'){ ac[i.categoria] = (ac[i.categoria]||0) + (Number(i.preco)||0); } });
+  const arr = Object.entries(ac).sort((a,b)=>b[1]-a[1]); const max = arr[0]?.[1]||1;
+  document.querySelector('#gastosCategorias').innerHTML = arr.map(([cat,val])=>
+    `<div style='display:flex; align-items:center; gap:8px'><div style='flex:0 0 160px'>${cat}</div><div style='background:var(--rose); height:24px; border-radius:6px; width:${Math.min(100,(val/max)*100)}%'><span style='padding-left:8px;color:#111'>${fmt(val)}</span></div></div>`
+  ).join('');
+}
+
+function origem(){
+  const tot = dados.itens.length || 1; const c = dados.itens.filter(i=>i.origem==='compramos').length; const p = dados.itens.filter(i=>i.origem==='presente').length; const u = dados.itens.filter(i=>!i.origem).length;
+  const linhas = [ ['Compramos', c, Math.round((c/tot)*100)], ['Presente', p, Math.round((p/tot)*100)], ['Indefinido', u, Math.round((u/tot)*100)] ];
+  const html = `<table class='table'><thead><tr><th>Origem</th><th>Qtd.</th><th>%</th></tr></thead><tbody>
+    ${linhas.map(l=>`<tr><td>${l[0]}</td><td>${l[1]}</td><td>${l[2]}%</td></tr>`).join('')}
+  </tbody></table>`; document.querySelector('#origemTabela').innerHTML = html;
+}
+
+function listaComprados(){ const rows = dados.itens.filter(i=>i.comprado).sort((a,b)=>a.categoria.localeCompare(b.categoria));
+  const tbody = document.querySelector('#tabelaComprados tbody');
+  tbody.innerHTML = rows.map(i=>`<tr><td>${i.categoria}</td><td>${i.nome}</td><td>${i.origem||'—'}</td><td>${fmt(Number(i.preco)||0)}</td></tr>`).join(''); }
+
+resumo(); gastosPorCategoria(); origem(); listaComprados();
+</script>
+</body>
+</html>

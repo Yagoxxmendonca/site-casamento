@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Teste itens</title>
+  <style>
+    .item { display:grid; grid-template-columns: 24px 1fr 140px 120px; gap:8px; padding:8px; border:1px solid #ddd; border-radius:8px; margin-bottom:6px; }
+    .item .check { width:24px; height:24px; border-radius:50%; border:2px solid #4CAF50; display:grid; place-items:center; font-weight:bold; color:#fff; background:#4CAF50; }
+    .item.pendente .check { background:transparent; color:#4CAF50; }
+    .item .nome { font-weight:600; }
+    .item .categoria { color:#666; font-size:12px; }
+    .item .origem select, .item .preco input { width:100%; padding:6px 8px; border:1px solid #ddd; border-radius:6px; }
+  </style>
+</head>
+<body>
+  <h1>Teste de renderização de itens</h1>
+  <div id="lista"></div>
+
+  <script>
+    // --- SEUS ITENS ---
+    const defaultItems = [
+      {"categoria":"Cozinha/Área de serviço","nome":"Talheres","comprado":true},
+      {"categoria":"Cozinha/Área de serviço","nome":"Lixeira de cozinha","comprado":false},
+      {"categoria":"Quarto/Cama","nome":"Porta travesseiro","comprado":true}
+    ];
+
+    // --- Funções mínimas para renderizar ---
+    const dados = {
+      itens: defaultItems.map((it, idx)=>({
+        id: idx+1,
+        categoria: it.categoria,
+        nome: it.nome,
+        comprado: !!it.comprado,
+        origem: it.comprado ? 'compramos' : '',
+        preco: 0
+      }))
+    };
+
+    function linha(i){
+      return `
+        <div class="item ${i.comprado ? '' : 'pendente'}">
+          <div class="check">${i.comprado ? '✓' : ''}</div>
+          <div>
+            <div class="nome">${i.nome}</div>
+            <div class="categoria">${i.categoria}</div>
+          </div>
+          <div class="origem">
+            <select>
+              <option value="">Origem</option>
+              <option value="compramos" ${i.origem==='compramos'?'selected':''}>Compramos</option>
+              <option value="presente" ${i.origem==='presente'?'selected':''}>Presente</option>
+            </select>
+          </div>
+          <div class="preco"><input type="number" placeholder="0,00" step="0.01"></div>
+        </div>
+      `;
+    }
+
+    function renderLista(){
+      const el = document.getElementById('lista');
+      el.innerHTML = dados.itens.map(linha).join('');
+    }
+
+    renderLista();
+  </script>
+</body>
+</html>
